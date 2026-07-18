@@ -4,21 +4,23 @@ import "fmt"
 
 func main() {
 
+	banco, erro := conectarBanco()
+	if erro != nil {
+		fmt.Println("erro ao conectar no banco:", erro)
+		return
+	}
+	fmt.Println("Conexão com o banco funcionando")
+
 	noticias, erro := buscarNoticiasAPI()
 	if erro != nil {
 		fmt.Println("erro ao buscar notícias", erro)
 		return
 	}
 
-	fmt.Println("Total de notícias recebidas:", len(noticias))
-	for _, noticia := range noticias {
-		fmt.Println("Categoria recebida:", noticia.Categoria)
-	}
-
 	resultado := filtrarNoticias(noticias, "science_technology")
 	listarNoticias(resultado)
 
-	erro = salvarNoticias(resultado)
+	erro = salvarNoticiasBanco(resultado, banco)
 	if erro != nil {
 		fmt.Println("Erro ao salvar noticias", erro)
 		return
