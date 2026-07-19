@@ -49,3 +49,35 @@ func salvarNoticiasBanco(noticias []Noticia, banco *sql.DB) error {
 
 	return nil
 }
+
+func listarNoticiasSalvas(banco *sql.DB) ([]Noticia, error) {
+	linhas, erro := banco.Query("SELECT titulo, fonte, categoria, link FROM noticias")
+	if erro != nil {
+		return nil, fmt.Errorf("Erro ao consultar notícias: %w", erro)
+	}
+	defer linhas.Close()
+	var noticias []Noticia
+
+	for linhas.Next() {
+		var titulo, fonte,
+			categoria, link string
+
+		erro := linhas.Scan(&titulo, &fonte, &categoria, &link)
+		if erro != nil {
+			return nil, fmt.Errorf("Erro ao ler linha: %w", erro)
+		}
+
+		noticias = append(noticias, Noticia{
+			Titulo:    titulo,
+			Fonte:     fonte,
+			Categoria: categoria,
+			Link:      link,
+		})
+	}
+
+	if erro := linhas.Err(); erro != nil {
+		return nil, fmt.Errorf("Erro ao iterar linhas: %w", erro)
+	}
+
+	return noticias, nil
+}
