@@ -37,7 +37,7 @@ func salvarNoticiasBanco(noticias []Noticia, banco *sql.DB) error {
 
 	for _, noticia := range noticias {
 		_, erro := banco.Exec(
-			"INSERT INTO noticias (titulo, fonte, categoria, link) VALUES ($1, $2, $3, $4)",
+			"INSERT INTO noticias (titulo, fonte, categoria, link) VALUES ($1, $2, $3, $4) ON CONFLICT (link) DO NOTHING",
 			noticia.Titulo, noticia.Fonte, noticia.Categoria, noticia.Link,
 		)
 		if erro != nil {
