@@ -20,16 +20,13 @@ func main() {
 	}
 	fmt.Println("Conexão com o banco funcionando")
 
-	noticias, erro := buscarNoticiasAPI()
-	if erro != nil {
-		fmt.Println("erro ao buscar notícias", erro)
-		return
-	}
+	categorias := []string{"science_technology", "sport", "automotive", "politics_government"}
+	noticias := buscarVariasCategorias(categorias)
 
-	resultado := filtrarNoticias(noticias, "science_technology")
-	listarNoticias(resultado)
+	//resultado := filtrarNoticias(noticias, "science_technology")
+	listarNoticias(noticias)
 
-	erro = salvarNoticiasBanco(resultado, banco)
+	erro = salvarNoticiasBanco(noticias, banco)
 	if erro != nil {
 		fmt.Println("Erro ao salvar noticias", erro)
 		return

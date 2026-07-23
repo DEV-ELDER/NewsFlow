@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"sync"
 )
 
 type RespostaAPI struct {
@@ -21,9 +22,9 @@ type ArtigoAPI struct {
 	Category    []string `json:"category"`
 }
 
-func buscarNoticiasAPI() ([]Noticia, error) {
+func buscarNoticiasAPI(categoria string) ([]Noticia, error) {
 	chave := os.Getenv("CURRENTS_API_KEY")
-	url := fmt.Sprintf("https://api.currentsapi.services/v2/latest-news?category=science_technology&apiKey=%s", chave)
+	url := fmt.Sprintf("https://api.currentsapi.services/v2/latest-news?category=%s&apiKey=%s", categoria, chave)
 
 	resposta, erro := http.Get(url)
 	if erro != nil {
@@ -64,4 +65,30 @@ func converterParaNoticia(artigo ArtigoAPI) Noticia {
 		Link:      artigo.Url,
 	}
 
+}
+
+func buscarVariasCategorias(categorias []string) []Noticia {
+	var wg sync.WaitGroup
+	canal := make(chan []Noticia, len(categorias))
+	for _, categoria := range categorias {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			noticias, erro := buscarNoticiasAPI(categoria)
+			if erro == nil {
+				canal <- noticias
+			}
+		}()
+	}
+
+	wg.Wait()
+	close(canal)
+
+	var todasNoticias []Noticia
+
+	for noticias := range canal {
+		todasNoticias = append(todasNoticias, noticias...)
+	}
+
+	return todasNoticias
 }
