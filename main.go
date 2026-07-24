@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/joho/godotenv"
 )
@@ -39,5 +40,8 @@ func main() {
 	}
 
 	listarNoticias(noticiasSalvas)
+
+	http.HandleFunc("/noticias", criarPaginaNoticias(banco))
+	http.ListenAndServe(":8080", nil)
 
 }
