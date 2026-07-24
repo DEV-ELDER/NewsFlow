@@ -21,27 +21,8 @@ func main() {
 	}
 	fmt.Println("Conexão com o banco funcionando")
 
-	categorias := []string{"science_technology", "sport", "automotive", "politics_government"}
-	noticias := buscarVariasCategorias(categorias)
-
-	//resultado := filtrarNoticias(noticias, "science_technology")
-	listarNoticias(noticias)
-
-	erro = salvarNoticiasBanco(noticias, banco)
-	if erro != nil {
-		fmt.Println("Erro ao salvar noticias", erro)
-		return
-	}
-
-	noticiasSalvas, erro := listarNoticiasSalvas(banco)
-	if erro != nil {
-		fmt.Println("Erro ao listar notícias salvas:", erro)
-		return
-	}
-
-	listarNoticias(noticiasSalvas)
-
 	http.HandleFunc("/noticias", criarPaginaNoticias(banco))
+	http.HandleFunc("/atualizar", criarPaginaAtualizar(banco))
 	http.ListenAndServe(":8080", nil)
 
 }
