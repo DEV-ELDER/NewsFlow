@@ -21,6 +21,11 @@ func criarPaginaNoticias(banco *sql.DB) func(w http.ResponseWriter, r *http.Requ
 			noticias = filtrarNoticias(noticias, categoria)
 		}
 
+		palavraChave := r.URL.Query().Get("palavraChave")
+		if palavraChave != "" {
+			noticias = filtrarPorPalavraChave(noticias, palavraChave)
+		}
+
 		dadosJSON, erro := json.Marshal(noticias)
 		if erro != nil {
 			w.WriteHeader(http.StatusInternalServerError)
