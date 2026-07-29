@@ -1,0 +1,21 @@
+name: Testes
+
+on:
+    push:
+        branches: [main]
+
+jobs:
+    testar:
+        runs-on: ubuntu-latest
+
+        steps:
+          - name: Baixar código
+            uses: actions/setup-go@v4
+
+          - name: Configurar Go
+            uses: actions/setup-go@v5  
+            with:
+                go-version: '1.26'
+
+          - name: Rodar testes
+            run: go test .
