@@ -10,7 +10,7 @@ jobs:
 
         steps:
           - name: Baixar código
-            uses: actions/setup-go@v4
+            uses: actions/checkout@v4
 
           - name: Configurar Go
             uses: actions/setup-go@v5  
