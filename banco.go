@@ -33,10 +33,18 @@ func conectarBanco() (*sql.DB, error) {
 
 }
 
-func salvarNoticiasBanco(noticias []Noticia, banco *sql.DB) error {
+type ArmazenamentoNoticia interface {
+	Salvar(noticias []Noticia) error
+}
+
+type BancoPostgres struct {
+	Banco *sql.DB
+}
+
+func (b BancoPostgres) Salvar(noticias []Noticia) error {
 
 	for _, noticia := range noticias {
-		_, erro := banco.Exec(
+		_, erro := b.Banco.Exec(
 			"INSERT INTO noticias (titulo, fonte, categoria, link) VALUES ($1, $2, $3, $4) ON CONFLICT (link) DO NOTHING",
 			noticia.Titulo, noticia.Fonte, noticia.Categoria, noticia.Link,
 		)

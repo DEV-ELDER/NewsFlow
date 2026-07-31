@@ -40,7 +40,8 @@ func criarPaginaAtualizar(banco *sql.DB) func(w http.ResponseWriter, r *http.Req
 	return func(w http.ResponseWriter, r *http.Request) {
 		categorias := []string{"science_technology", "sport", "automotive", "politics_government"}
 		noticias := buscarVariasCategorias(categorias)
-		erro := salvarNoticiasBanco(noticias, banco)
+		armazenamento := BancoPostgres{Banco: banco}
+		erro := armazenamento.Salvar(noticias)
 		if erro != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
