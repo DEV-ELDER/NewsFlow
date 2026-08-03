@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"sync"
+	"time"
 )
 
 type RespostaAPI struct {
@@ -22,13 +24,18 @@ type ArtigoAPI struct {
 	Category    []string `json:"category"`
 }
 
-func buscarNoticiasAPI(categoria string) ([]Noticia, error) {
+func buscarNoticiasAPI(ctx context.Context, categoria string) ([]Noticia, error) {
 	chave := os.Getenv("CURRENTS_API_KEY")
 	url := fmt.Sprintf("https://api.currentsapi.services/v2/latest-news?category=%s&apiKey=%s", categoria, chave)
 
-	resposta, erro := http.Get(url)
+	requisicao, erro := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if erro != nil {
-		return nil, fmt.Errorf("Erro na url: %w", erro)
+		return nil, fmt.Errorf("Erro ao criar requisição: %w", erro)
+	}
+
+	resposta, erro := http.DefaultClient.Do(requisicao)
+	if erro != nil {
+		return nil, fmt.Errorf("erro na url: %w", erro)
 	}
 	defer resposta.Body.Close()
 
@@ -68,13 +75,16 @@ func converterParaNoticia(artigo ArtigoAPI) Noticia {
 }
 
 func buscarVariasCategorias(categorias []string) []Noticia {
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
 	var wg sync.WaitGroup
 	canal := make(chan []Noticia, len(categorias))
+
 	for _, categoria := range categorias {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			noticias, erro := buscarNoticiasAPI(categoria)
+			noticias, erro := buscarNoticiasAPI(ctx, categoria)
 			if erro == nil {
 				canal <- noticias
 			}
