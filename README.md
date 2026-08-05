@@ -13,11 +13,15 @@ O NewsFlow busca notícias de múltiplas categorias simultaneamente (usando goro
 ## Funcionalidades
 
 - 🔄 Busca concorrente de múltiplas categorias de notícias (goroutines, channels, WaitGroup)
+- 🔒 Proteção contra travamento com `context.Context` (timeout em chamadas externas)
 - 🗄️ Persistência em PostgreSQL, com constraint de unicidade evitando duplicatas
-- 🌐 API REST própria, com filtro por categoria via query parameter
+- 🌐 API REST própria, com filtro por categoria e por palavra-chave via query parameters
+- 🧩 Persistência abstraída por interface (`ArmazenamentoNoticia`), permitindo testes sem depender de banco real
 - 🔐 Configuração segura de credenciais via variáveis de ambiente
-- ✅ Testes automatizados (table-driven tests)
-- ☁️ Deploy em produção (Render)
+- ✅ Testes automatizados (table-driven tests + testes com fake/mock)
+- 🐳 Containerizado com Docker (build multi-stage)
+- ⚙️ CI configurado com GitHub Actions, rodando testes a cada push
+- ☁️ Deploy em produção (Render), com CD automático
 
 ## Tecnologias
 
@@ -26,6 +30,8 @@ O NewsFlow busca notícias de múltiplas categorias simultaneamente (usando goro
 - **net/http** — servidor HTTP (biblioteca padrão, sem framework)
 - **lib/pq** — driver PostgreSQL
 - **godotenv** — variáveis de ambiente
+- **Docker** — containerização
+- **GitHub Actions** — integração contínua (CI)
 - **Currents API** — fonte externa de notícias
 - **Render** — hospedagem (aplicação + banco de dados)
 
@@ -35,9 +41,12 @@ O NewsFlow busca notícias de múltiplas categorias simultaneamente (usando goro
 |---|---|---|
 | `/noticias` | GET | Lista todas as notícias salvas |
 | `/noticias?categoria=sport` | GET | Filtra notícias por categoria |
+| `/noticias?palavraChave=IA` | GET | Filtra notícias por palavra-chave no título |
 | `/atualizar` | GET | Busca novas notícias na API externa e salva no banco |
 
 ## Rodando localmente
+
+### Opção 1 — Direto com Go
 
 \`\`\`bash
 git clone https://github.com/DEV-ELDER/NewsFlow.git
@@ -60,8 +69,21 @@ DB_NAME=newsflow
 go run .
 \`\`\`
 
+### Opção 2 — Com Docker
+
+\`\`\`bash
+docker build -t newsflow .
+docker run -p 8080:8080 --env-file .env -e DB_HOST=host.docker.internal newsflow
+\`\`\`
+
 Servidor disponível em `http://localhost:8080`.
+
+## Testes
+
+\`\`\`bash
+go test .
+\`\`\`
 
 ## Sobre este projeto
 
-Este projeto foi construído como parte do meu aprendizado prático de Go para desenvolvimento backend, cobrindo desde fundamentos da linguagem até concorrência, persistência de dados e deploy em produção.
+Este projeto foi construído como parte do meu aprendizado prático de Go para desenvolvimento backend, cobrindo desde fundamentos da linguagem até concorrência avançada (Goroutines, Channels, Mutex, Context), interfaces, testes, containerização e deploy em produção.
