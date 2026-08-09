@@ -59,7 +59,7 @@ func (b BancoPostgres) Salvar(noticias []Noticia) error {
 }
 
 func listarNoticiasSalvas(banco *sql.DB) ([]Noticia, error) {
-	linhas, erro := banco.Query("SELECT titulo, fonte, categoria, link FROM noticias")
+	linhas, erro := banco.Query("SELECT titulo, fonte, categoria, link FROM noticias ORDER BY id DESC")
 	if erro != nil {
 		return nil, fmt.Errorf("Erro ao consultar notícias: %w", erro)
 	}
